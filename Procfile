@@ -1,1 +1,1 @@
-web: gunicorn single_prediction_dash:app
+web: gunicorn single_prediction_dash:server

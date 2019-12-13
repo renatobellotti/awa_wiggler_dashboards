@@ -1,0 +1,71 @@
+#sigma_x {
+    width: 30%;
+    display: inline-block;
+}
+
+#sigma_y {
+    width: 30%;
+    display: inline-block;
+}
+
+#sigma_s {
+    width: 30%;
+    display: inline-block;
+}
+
+#epsilon_x {
+    width: 30%;
+    display: inline-block;
+}
+
+#epsilon_y {
+    width: 30%;
+    display: inline-block;
+}
+
+#epsilon_s {
+    width: 30%;
+    display: inline-block;
+}
+
+#correlation_x {
+    width: 30%;
+    display: inline-block;
+}
+
+#correlation_y {
+    width: 30%;
+    display: inline-block;
+}
+
+#correlation_s {
+    width: 30%;
+    display: inline-block;
+}
+
+#energy {
+    width: 30%;
+    display: inline-block;
+}
+
+#energy_spread {
+    width: 30%;
+    display: inline-block;
+}
+
+.slider {
+    width: 20%;
+    display: inline-block;
+}
+
+.dvar_box {
+    width: 5em;
+    display: inline-block;
+    padding: 0px 25px 25px;
+}
+
+.dvar_label {
+    width: 10%;
+    display: inline-block;
+    padding: 0px 25px 25px;
+}

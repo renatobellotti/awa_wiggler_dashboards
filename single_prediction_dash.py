@@ -202,6 +202,8 @@ components.append(corrs)
 # add all components
 app.layout = html.Div(components)
 
+server = app.server
+
 
 ####################################
 # Update value by slider callbacks

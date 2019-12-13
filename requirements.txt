@@ -2,3 +2,5 @@ tensorflow==2.0.0b1
 plotly
 dash==1.7.0
 gunicorn
+pandas
+git+https://gitlab.psi.ch/adelmann/mllib.git@master#egg=mllib

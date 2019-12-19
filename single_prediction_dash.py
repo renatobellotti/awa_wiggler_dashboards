@@ -3,6 +3,7 @@ import pandas as pd
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_daq as daq
 from dash.dependencies import Input, Output
 
 from mllib.data import PandasHdfSource
@@ -12,22 +13,18 @@ from mllib.model import KerasSurrogate
 # functions to build widgets and plots
 #########################################
 def build_dvar_control(dvar, minimum, maximum, label):
-    slider = dcc.Slider(min=minimum,
+    numeric_input = daq.NumericInput(min=minimum,
                         max=maximum,
                         value=minimum,
-                        id='{}_slider'.format(dvar),
-                        className='slider',
-                        marks={
-                            minimum: str(minimum),
-                            maximum: str(maximum)
-                        },
-                        tooltip={'placement': 'top'})
+                        id='{}_numeric_input'.format(dvar),
+                        className='numeric_input',
+                        )
 
     label = html.Div(label,
                     className='dvar_label',
                     id='{}_label'.format(dvar))
-    textfield = html.Div(id='{}_textfield'.format(dvar), className='dvar_box')
-    labelled_textfield = html.Div([label, slider, textfield],
+    range_label = html.Div('[{}, {}]'.format(minimum, maximum), className='dvar_label')
+    labelled_textfield = html.Div([label, numeric_input, range_label],
                                     id=dvar, className='dvar_container')
 
     return labelled_textfield
@@ -98,7 +95,8 @@ dvar_ranges = {
     'ILS1': (50, 250),
     'ILS2': (100, 200),
     'ILS3': (150, 200),
-    'Bunch charge': (1, 5)
+    'Bunch charge': (1, 5),
+    'cavityVoltage': (12, 25)
 }
 
 # values taken from the single_sample_vs_ground_truth.py dashboard
@@ -125,6 +123,7 @@ dvars = [
     'ILS2',
     'ILS3',
     'Bunch charge',
+    'cavityVoltage'
 ]
 
 dvar_labels = {
@@ -134,13 +133,14 @@ dvar_labels = {
     'ILS1': 'ILS1 [A]',
     'ILS2': 'ILS2 [A]',
     'ILS3': 'ILS3 [A]',
-    'Bunch charge': 'Bunch charge [nC]'
+    'Bunch charge': 'Bunch charge [nC]',
+    'cavityVoltage': 'Cavity voltage [MV]'
 }
 
 ###########################
 # load model
 ###########################
-model_name = 'hiddenLayers_12_unitsPerLayer_100_activation_relu_L2regularizer_0.0_dropout_0.0_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_10_cycles_15_epochs_per_cycle_150_random_sample_with_linac_solenoids_charge_sweep_more_qois_more_qoi_final'
+model_name = 'hiddenLayers_14_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_final'
 
 model = KerasSurrogate.load('.', model_name)
 
@@ -206,73 +206,6 @@ server = app.server
 
 
 ####################################
-# Update value by slider callbacks
-####################################
-@app.callback(
-    Output('IBF_textfield', 'children'),
-    [Input('IBF_slider', 'value')])
-def update_IBF_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-@app.callback(
-    Output('IM_textfield', 'children'),
-    [Input('IM_slider', 'value')])
-def update_IM_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-@app.callback(
-    Output('GPHASE_textfield', 'children'),
-    [Input('GPHASE_slider', 'value')])
-def update_GPHASE_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-@app.callback(
-    Output('ILS1_textfield', 'children'),
-    [Input('ILS1_slider', 'value')])
-def update_ILS1_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-@app.callback(
-    Output('ILS2_textfield', 'children'),
-    [Input('ILS2_slider', 'value')])
-def update_ILS2_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-@app.callback(
-    Output('ILS3_textfield', 'children'),
-    [Input('ILS3_slider', 'value')])
-def update_ILS3_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-@app.callback(
-    Output('Bunch charge_textfield', 'children'),
-    [Input('Bunch charge_slider', 'value')])
-def update_bunch_charge_textfield(value):
-    if value:
-        return str(value)
-    else:
-        return ''
-
-
-####################################
 # Update graphs
 ####################################
 @app.callback(
@@ -289,8 +222,8 @@ def update_bunch_charge_textfield(value):
         Output('energy', 'figure'),
         Output('energy_spread', 'figure'),
     ],
-    [Input('{}_slider'.format(dvar), 'value') for dvar in dvars])
-def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge):
+    [Input('{}_numeric_input'.format(dvar), 'value') for dvar in dvars])
+def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage):
     s_values = np.linspace(0., 14., 1000)
 
     X = [np.array([float(IBF),
@@ -300,7 +233,8 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge):
                     float(ILS2),
                     float(ILS3),
                     float(bunch_charge),
-                    s]).reshape(1, 8) for s in s_values]
+                    float(cavityVoltage),
+                    s]).reshape(1, 9) for s in s_values]
 
     X = np.vstack(X)
     

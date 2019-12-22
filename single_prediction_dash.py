@@ -140,7 +140,7 @@ dvar_labels = {
 ###########################
 # load model
 ###########################
-model_name = 'hiddenLayers_14_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_final'
+model_name = 'hiddenLayers_12_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_final'
 
 model = KerasSurrogate.load('.', model_name)
 

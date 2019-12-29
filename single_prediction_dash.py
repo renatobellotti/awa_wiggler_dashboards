@@ -56,17 +56,17 @@ qoi_columns = [
     'Mean Bunch Energy',
     'RMS Beamsize in x',
     'RMS Beamsize in y',
-    'RMS Beamsize in s',
+    #'RMS Beamsize in s',
     'Normalized Emittance x',
     'Normalized Emittance y',
-    'Normalized Emittance s',
+    #'Normalized Emittance s',
     #'RMS Normalized Momenta in x',
     #'RMS Normalized Momenta in y',
     #'RMS Normalized Momenta in s',
     'energy spread of the beam',
     'Correlation xpx',
     'Correlation ypy',
-    'Correlation zpz',
+    #'Correlation zpz',
 ]
 
 columns_to_keep = [
@@ -74,17 +74,17 @@ columns_to_keep = [
     'Mean Bunch Energy',
     'RMS Beamsize in x',
     'RMS Beamsize in y',
-    'RMS Beamsize in s',
+    #'RMS Beamsize in s',
     'Normalized Emittance x',
     'Normalized Emittance y',
-    'Normalized Emittance s',
+    #'Normalized Emittance s',
     #'RMS Normalized Momenta in x',
     #'RMS Normalized Momenta in y',
     #'RMS Normalized Momenta in s',
     'energy spread of the beam',
     'Correlation xpx',
     'Correlation ypy',
-    'Correlation zpz',
+    #'Correlation zpz',
     'Path length'
 ]
 
@@ -96,7 +96,8 @@ dvar_ranges = {
     'ILS2': (100, 200),
     'ILS3': (150, 200),
     'Bunch charge': (1, 5),
-    'cavityVoltage': (12, 25)
+    'cavityVoltage': (12, 25),
+    'SIGXY': (9, 27)
 }
 
 # values taken from the single_sample_vs_ground_truth.py dashboard
@@ -104,13 +105,13 @@ dvar_ranges = {
 qoi_ranges = {
     'RMS Beamsize in x': (0, 12),
     'RMS Beamsize in y': (0, 12),
-    'RMS Beamsize in s': (0, 1.5),
+    #'RMS Beamsize in s': (0, 1.5),
     'Normalized Emittance x': (0, 0.3),
     'Normalized Emittance y': (0, 0.3),
-    'Normalized Emittance s': (0, 0.15),
+    #'Normalized Emittance s': (0, 0.15),
     'Correlation xpx': (-1, 1),
     'Correlation ypy': (-1, 1),
-    'Correlation zpz': (-1, 1),
+    #'Correlation zpz': (-1, 1),
     'Mean Bunch Energy': (0, 70),
     'energy spread of the beam': (0, 0.15)
 }
@@ -123,7 +124,8 @@ dvars = [
     'ILS2',
     'ILS3',
     'Bunch charge',
-    'cavityVoltage'
+    'cavityVoltage',
+    'SIGXY'
 ]
 
 dvar_labels = {
@@ -134,13 +136,14 @@ dvar_labels = {
     'ILS2': 'ILS2 [A]',
     'ILS3': 'ILS3 [A]',
     'Bunch charge': 'Bunch charge [nC]',
-    'cavityVoltage': 'Cavity voltage [MV]'
+    'cavityVoltage': 'Cavity voltage [MV]',
+    'SIGXY': 'Laser radius [mm]'
 }
 
 ###########################
 # load model
 ###########################
-model_name = 'hiddenLayers_12_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_final'
+model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_varying_radius_final'
 
 model = KerasSurrogate.load('.', model_name)
 
@@ -169,7 +172,7 @@ components.append(dcc.Markdown('# Beam sizes'))
 beam_sizes = html.Div([
     dcc.Graph(id='sigma_x'),
     dcc.Graph(id='sigma_y'),
-    dcc.Graph(id='sigma_s'),
+    #dcc.Graph(id='sigma_s'),
 ], id='beam_sizes')
 components.append(beam_sizes)
 
@@ -178,7 +181,7 @@ components.append(dcc.Markdown('# Emittances'))
 emittances = html.Div([
     dcc.Graph(id='epsilon_x'),
     dcc.Graph(id='epsilon_y'),
-    dcc.Graph(id='epsilon_s'),
+    #dcc.Graph(id='epsilon_s'),
 ])
 components.append(emittances)
 
@@ -195,7 +198,7 @@ components.append(dcc.Markdown('# Correlations'))
 corrs = html.Div([
     dcc.Graph(id='correlation_x'),
     dcc.Graph(id='correlation_y'),
-    dcc.Graph(id='correlation_s'),
+    #dcc.Graph(id='correlation_s'),
 ])
 components.append(corrs)
 
@@ -212,18 +215,18 @@ server = app.server
     [
         Output('sigma_x', 'figure'),
         Output('sigma_y', 'figure'),
-        Output('sigma_s', 'figure'),
+        #Output('sigma_s', 'figure'),
         Output('epsilon_x', 'figure'),
         Output('epsilon_y', 'figure'),
-        Output('epsilon_s', 'figure'),
+        #Output('epsilon_s', 'figure'),
         Output('correlation_x', 'figure'),
         Output('correlation_y', 'figure'),
-        Output('correlation_s', 'figure'),
+        #Output('correlation_s', 'figure'),
         Output('energy', 'figure'),
         Output('energy_spread', 'figure'),
     ],
     [Input('{}_numeric_input'.format(dvar), 'value') for dvar in dvars])
-def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage):
+def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage, SIGXY):
     s_values = np.linspace(0., 14., 1000)
 
     X = [np.array([float(IBF),
@@ -234,7 +237,8 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
                     float(ILS3),
                     float(bunch_charge),
                     float(cavityVoltage),
-                    s]).reshape(1, 9) for s in s_values]
+                    float(SIGXY) / 1000.,
+                    s]).reshape(1, 10) for s in s_values]
 
     X = np.vstack(X)
     
@@ -246,17 +250,17 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
     # beam sizes
     to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in x'] * 1000., 'sigma_x [mm]', qoi_ranges['RMS Beamsize in x']))
     to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in y'] * 1000., 'sigma_y [mm]', qoi_ranges['RMS Beamsize in y']))
-    to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in s'] * 1000., 'sigma_s [mm]', qoi_ranges['RMS Beamsize in s']))
+    #to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in s'] * 1000., 'sigma_s [mm]', qoi_ranges['RMS Beamsize in s']))
 
     # emittances
     to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance x'] * 1000., 'epsilon_x [mm rad]', qoi_ranges['Normalized Emittance x']))
     to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance y'] * 1000., 'epsilon_y [mm rad]', qoi_ranges['Normalized Emittance y']))
-    to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance s'] * 1000., 'epsilon_s [mm rad]', qoi_ranges['Normalized Emittance s']))
+    #to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance s'] * 1000., 'epsilon_s [mm rad]', qoi_ranges['Normalized Emittance s']))
 
     # correlations
     to_return.append(build_graph_dict(s_values, prediction['Correlation xpx'], 'corr(x, px)', qoi_ranges['Correlation xpx']))
     to_return.append(build_graph_dict(s_values, prediction['Correlation ypy'], 'corr(y, py)', qoi_ranges['Correlation ypy']))
-    to_return.append(build_graph_dict(s_values, prediction['Correlation zpz'], 'corr(s, ps)', qoi_ranges['Correlation zpz']))
+    #to_return.append(build_graph_dict(s_values, prediction['Correlation zpz'], 'corr(s, ps)', qoi_ranges['Correlation zpz']))
 
     # E & dE
     to_return.append(build_graph_dict(s_values, prediction['Mean Bunch Energy'], 'E [MeV]', qoi_ranges['Mean Bunch Energy']))

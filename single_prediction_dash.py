@@ -143,7 +143,7 @@ dvar_labels = {
 ###########################
 # load model
 ###########################
-model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_varying_radius_final'
+model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_varying_radius_new_scaling_final'
 
 model = KerasSurrogate.load('.', model_name)
 
@@ -227,7 +227,7 @@ server = app.server
     ],
     [Input('{}_numeric_input'.format(dvar), 'value') for dvar in dvars])
 def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage, SIGXY):
-    s_values = np.linspace(0., 14., 1000)
+    s_values = np.linspace(1., 14., 1000)
 
     X = [np.array([float(IBF),
                     float(IM),

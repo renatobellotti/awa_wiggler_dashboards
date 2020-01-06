@@ -17,15 +17,16 @@ def build_dvar_control(dvar, minimum, maximum, label):
                         max=maximum,
                         value=minimum,
                         id='{}_numeric_input'.format(dvar),
-                        className='numeric_input',
+                        #size=100,
+                        className='numericInput',
                         )
 
     label = html.Div(label,
-                    className='dvar_label',
+                    className='dvarLabel',
                     id='{}_label'.format(dvar))
-    range_label = html.Div('[{}, {}]'.format(minimum, maximum), className='dvar_label')
+    range_label = html.Div('[{}, {}]'.format(minimum, maximum), className='dvarLabel')
     labelled_textfield = html.Div([label, numeric_input, range_label],
-                                    id=dvar, className='dvar_container')
+                                    id=dvar, className='dvarContainer')
 
     return labelled_textfield
 
@@ -154,14 +155,25 @@ components = []
 ##########################
 # DVAR sliders
 ##########################
+table_cells = []
+n_cols = 2
+
 for dvar, label in dvar_labels.items():
     minimum = dvar_ranges[dvar][0]
     maximum = dvar_ranges[dvar][1]
 
     labelled_textfield = build_dvar_control(dvar, minimum, maximum, label)
+    table_cells.append(labelled_textfield)
 
-    components.append(labelled_textfield)
-    components.append(html.Hr())
+rows = []
+
+for i in range((len(table_cells) // n_cols) + 1):
+    row = table_cells[i*n_cols:(i+1)*n_cols]
+    row = html.Tr([html.Td(element) for element in row])
+    rows.append(row)
+
+table = html.Table(rows, id='dvar_table')
+components.append(table)
 
 ##########################
 # Graphs

@@ -53,18 +53,34 @@
     display: inline-block;
 }
 
-.numeric_input {
-    display: inline-block;
+#dvar_table {
+    width:35%;
+    position:fixed;
+    float:right;
+    right: 0;
 }
 
-.dvar_box {
-    width: 5em;
+.dvarLabel {
     display: inline-block;
-    padding: 0px 25px 25px;
+    width: 33%;
 }
 
-.dvar_label {
-    width: 10%;
+.numericInput {
     display: inline-block;
-    padding: 0px 25px 25px;
+    width: 33%;
+}
+
+.dvarContainer {
+    display: inline-block;
+    width: 100%;
+}
+
+table {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+td {
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
 }

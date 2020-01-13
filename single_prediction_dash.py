@@ -1,13 +1,17 @@
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
 from dash.dependencies import Input, Output
+tf.keras.backend.set_floatx('float64')
 
 from mllib.data import PandasHdfSource
 from mllib.model import KerasSurrogate
+
+from invertible_network.invertible_neural_network import InvertibleNetworkSurrogate
 
 #########################################
 # functions to build widgets and plots
@@ -144,9 +148,14 @@ dvar_labels = {
 ###########################
 # load model
 ###########################
-model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_varying_radius_new_scaling_final'
+is_invertible = True
 
-model = KerasSurrogate.load('.', model_name)
+model_name = 'random_sample_varying_radius_invertible_lr_0_0001_wider'
+
+if is_invertible:
+    model = InvertibleNetworkSurrogate.load('.', model_name)
+else:
+    model = KerasSurrogate.load('.', model_name)
 
 app = dash.Dash(__name__)
 
@@ -255,6 +264,9 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
     X = np.vstack(X)
     
     prediction = model.predict(X)
+    if is_invertible:
+        # the invertible network predicts "s" as the last column --> remove it
+        prediction = prediction[:, :-1]
     prediction = pd.DataFrame(data=prediction, columns=qoi_columns)
 
     to_return = []

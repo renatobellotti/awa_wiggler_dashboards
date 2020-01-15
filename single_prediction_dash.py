@@ -148,9 +148,9 @@ dvar_labels = {
 ###########################
 # load model
 ###########################
-is_invertible = True
+is_invertible = False
 
-model_name = 'random_sample_varying_radius_invertible_lr_0_0001_wider'
+model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_varying_radius_new_scaling_final'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)

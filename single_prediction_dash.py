@@ -94,22 +94,22 @@ columns_to_keep = [
 ]
 
 dvar_ranges = {
-    'IBF': (200, 450),
-    'IM': (210, 260),
-    'GPHASE': (-25, 0),
-    'ILS1': (50, 250),
-    'ILS2': (100, 200),
-    'ILS3': (150, 200),
+    'IBF': (450, 550),
+    'IM': (150, 260),
+    'GPHASE': (-50, 10),
+    'ILS1': (0, 250),
+    'ILS2': (0, 200),
+    'ILS3': (0, 200),
     'Bunch charge': (1, 5),
     'cavityVoltage': (12, 25),
-    'SIGXY': (9, 27)
+    'SIGXY': (1.5, 12.5)
 }
 
 # values taken from the single_sample_vs_ground_truth.py dashboard
 # (by eye, not from the test set range!)
 qoi_ranges = {
-    'RMS Beamsize in x': (0, 12),
-    'RMS Beamsize in y': (0, 12),
+    'RMS Beamsize in x': (0, 15),
+    'RMS Beamsize in y': (0, 15),
     #'RMS Beamsize in s': (0, 1.5),
     'Normalized Emittance x': (0, 0.3),
     'Normalized Emittance y': (0, 0.3),
@@ -150,7 +150,7 @@ dvar_labels = {
 ###########################
 is_invertible = False
 
-model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_double_varying_radius_new_scaling_final'
+model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_awa_range_dense_filtered'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)

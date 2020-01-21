@@ -41,9 +41,9 @@ solenoid_locations = [
 
 # colors for the beamline elements
 machine_element_colors = {
-    'cavity': px.colors.qualitative.Plotly[2],
-    'YAG': px.colors.qualitative.Plotly[3],
-    'solenoid': px.colors.qualitative.Plotly[4],
+    'cavity': px.colors.qualitative.Safe[0],
+    'YAG': px.colors.qualitative.Safe[1],
+    'solenoid': px.colors.qualitative.Safe[2],
 }
 
 element_shade_opacity = 0.7

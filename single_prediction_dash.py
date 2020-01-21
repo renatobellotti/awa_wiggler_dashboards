@@ -14,6 +14,39 @@ from mllib.model import KerasSurrogate
 from invertible_network.invertible_neural_network import InvertibleNetworkSurrogate
 
 #########################################
+# constants of the machine
+#########################################
+cavity_locations = [
+    (1., 1.8),
+    (3., 4.5),
+    (5., 6.),
+    (7., 8.2),
+    (8.4, 9.5)
+]
+
+YAG_screens = np.array([
+    #0.5,
+    2.93,
+    6.22,
+    9.47,
+    11.36
+])
+
+solenoid_locations = [
+    2.08,
+    4.65,
+    6.69,
+]
+
+# colors for the beamline elements
+machine_element_colors = {
+    'cavity': 'LightPink',
+    'YAG': 'OliveDrab',
+    'solenoid': 'Yellow',
+}
+
+
+#########################################
 # functions to build widgets and plots
 #########################################
 def build_dvar_control(dvar, minimum, maximum, label):
@@ -49,7 +82,61 @@ def build_graph_dict(s, qoi, y_label, y_ranges):
             'yaxis': {
                 'title': y_label,
                 'range': y_ranges
-            }
+            },
+            # shaded areas
+            'shapes': [
+                # cavitites
+                {
+                    'type': 'rect',
+                    'xref': 'x',
+                    'yref': 'paper',
+                    'x0': x_start,
+                    'y0': 0.,
+                    'x1': x_end,
+                    'y1': 1.,
+                    'layer': 'below',
+                    'opacity': 0.5,
+                    'line': {
+                        'color': machine_element_colors['cavity'],
+                        'width': 0,
+                    },
+                    'fillcolor': 'LightPink',
+                } for (x_start, x_end) in cavity_locations
+            ] + [
+                # YAG screens
+                {
+                    'type': 'line',
+                    'xref': 'x',
+                    'yref': 'paper',
+                    'x0': x,
+                    'y0': 0.,
+                    'x1': x,
+                    'y1': 1.,
+                    'layer': 'below',
+                    'opacity': 0.5,
+                    'line': {
+                        'color': machine_element_colors['YAG'],
+                        'width': 2,
+                    }
+                } for x in YAG_screens
+            ] + [
+                # solenoids
+                {
+                    'type': 'line',
+                    'xref': 'x',
+                    'yref': 'paper',
+                    'x0': x,
+                    'y0': 0.,
+                    'x1': x,
+                    'y1': 1.,
+                    'layer': 'below',
+                    'opacity': 0.5,
+                    'line': {
+                        'color': machine_element_colors['solenoid'],
+                        'width': 2,
+                    }
+                } for x in solenoid_locations
+            ]
         }
     }
 
@@ -182,7 +269,20 @@ for i in range((len(table_cells) // n_cols) + 1):
     rows.append(row)
 
 table = html.Table(rows, id='dvar_table')
-components.append(table)
+
+# color labels
+color_labels = []
+for key, value in machine_element_colors.items():
+    color_labels.append(html.P(key, style={
+        'color': value,
+        'font-weight': 'bold',
+        'font-size': 30,
+    }))
+color_labels = html.Div(color_labels)
+
+container = html.Div([table, color_labels], id='right_panel_container')
+
+components.append(container)
 
 ##########################
 # Graphs

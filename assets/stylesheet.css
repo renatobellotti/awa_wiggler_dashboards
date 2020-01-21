@@ -53,7 +53,7 @@
     display: inline-block;
 }
 
-#dvar_table {
+#right_panel_container {
     width:35%;
     position:fixed;
     float:right;

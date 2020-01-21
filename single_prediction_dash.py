@@ -5,6 +5,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
+import plotly.express as px
 from dash.dependencies import Input, Output
 tf.keras.backend.set_floatx('float64')
 
@@ -40,10 +41,12 @@ solenoid_locations = [
 
 # colors for the beamline elements
 machine_element_colors = {
-    'cavity': 'LightPink',
-    'YAG': 'OliveDrab',
-    'solenoid': 'Yellow',
+    'cavity': px.colors.qualitative.Plotly[2],
+    'YAG': px.colors.qualitative.Plotly[3],
+    'solenoid': px.colors.qualitative.Plotly[4],
 }
+
+element_shade_opacity = 0.7
 
 
 #########################################
@@ -95,12 +98,12 @@ def build_graph_dict(s, qoi, y_label, y_ranges):
                     'x1': x_end,
                     'y1': 1.,
                     'layer': 'below',
-                    'opacity': 0.5,
+                    'opacity': element_shade_opacity,
                     'line': {
                         'color': machine_element_colors['cavity'],
                         'width': 0,
                     },
-                    'fillcolor': 'LightPink',
+                    'fillcolor': machine_element_colors['cavity'],
                 } for (x_start, x_end) in cavity_locations
             ] + [
                 # YAG screens
@@ -113,7 +116,7 @@ def build_graph_dict(s, qoi, y_label, y_ranges):
                     'x1': x,
                     'y1': 1.,
                     'layer': 'below',
-                    'opacity': 0.5,
+                    'opacity': element_shade_opacity,
                     'line': {
                         'color': machine_element_colors['YAG'],
                         'width': 2,
@@ -130,7 +133,7 @@ def build_graph_dict(s, qoi, y_label, y_ranges):
                     'x1': x,
                     'y1': 1.,
                     'layer': 'below',
-                    'opacity': 0.5,
+                    'opacity': element_shade_opacity,
                     'line': {
                         'color': machine_element_colors['solenoid'],
                         'width': 2,

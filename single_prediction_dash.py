@@ -226,7 +226,7 @@ qoi_ranges = {
     'Correlation ypy': (-1, 1),
     #'Correlation zpz': (-1, 1),
     'Mean Bunch Energy': (0, 70),
-    'energy spread of the beam': (0, 0.15)
+    'energy spread of the beam': (0., 1000.)
 }
 
 dvars = [
@@ -258,7 +258,7 @@ dvar_labels = {
 ###########################
 is_invertible = False
 
-model_name = 'hiddenLayers_8_unitsPerLayer_300_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_awa_range_dense_filtered'
+model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_700_awa_range_dense_filtered_8x500_lr_0_0001'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)
@@ -409,7 +409,7 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
 
     # E & dE
     to_return.append(build_graph_dict(s_values, prediction['Mean Bunch Energy'], 'E [MeV]', qoi_ranges['Mean Bunch Energy']))
-    to_return.append(build_graph_dict(s_values, prediction['energy spread of the beam'], 'dE [MeV]', qoi_ranges['energy spread of the beam']))
+    to_return.append(build_graph_dict(s_values, prediction['energy spread of the beam'] * 1000., 'dE [keV]', qoi_ranges['energy spread of the beam']))
 
     return to_return
 

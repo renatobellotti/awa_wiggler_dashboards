@@ -81,9 +81,27 @@ def build_graph_dict(s, qoi, y_label, y_ranges):
             }
         ],
         'layout': {
-            'xaxis': {'title': 's [m]'},
+            'xaxis': {
+                'title': {
+                    'text': 's [m]',
+                    'font': {
+                            'size': 30
+                    },
+                },
+                'tickfont': {
+                    'size': 20,
+                }
+            },
             'yaxis': {
-                'title': y_label,
+                'title': {
+                    'text': y_label,
+                    'font': {
+                        'size': 30
+                    }
+                },
+                'tickfont': {
+                    'size': 20,
+                },
                 'range': y_ranges
             },
             # shaded areas

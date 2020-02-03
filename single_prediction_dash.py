@@ -258,7 +258,7 @@ dvar_labels = {
 ###########################
 is_invertible = False
 
-model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.001_optimizer_adam_epochs_700_awa_range_dense_filtered_8x500_0_to_14m'
+model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_700_awa_range_dense_filtered_8x500_0_to_14m_LR_0_0001'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)

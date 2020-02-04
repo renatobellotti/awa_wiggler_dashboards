@@ -379,7 +379,7 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
                     float(ILS3),
                     float(bunch_charge),
                     float(cavityVoltage),
-                    float(SIGXY) / 1000.,
+                    float(SIGXY),
                     s]).reshape(1, 10) for s in s_values]
 
     X = np.vstack(X)

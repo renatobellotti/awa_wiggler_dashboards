@@ -258,7 +258,7 @@ dvar_labels = {
 ###########################
 is_invertible = False
 
-model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_700_awa_range_dense_filtered_8x500_0_to_14m_LR_0_0001'
+model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_700_awa_range_dense_filtered_8x500_0_to_26m'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)
@@ -369,7 +369,7 @@ server = app.server
     ],
     [Input('{}_numeric_input'.format(dvar), 'value') for dvar in dvars])
 def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage, SIGXY):
-    s_values = np.linspace(0., 13.7, 1000)
+    s_values = np.linspace(0., 26., 1000)
 
     X = [np.array([float(IBF),
                     float(IM),

@@ -165,7 +165,6 @@ def build_graph_dict(s, qoi, y_label, y_ranges):
 # Data structure
 ###################
 qoi_columns = [
-    'Number of Macro Particles',
     'Mean Bunch Energy',
     'RMS Beamsize in x',
     'RMS Beamsize in y',
@@ -183,7 +182,6 @@ qoi_columns = [
 ]
 
 columns_to_keep = [
-    'Number of Macro Particles',
     'Mean Bunch Energy',
     'RMS Beamsize in x',
     'RMS Beamsize in y',
@@ -209,7 +207,7 @@ dvar_ranges = {
     'ILS2': (0, 200),
     'ILS3': (0, 200),
     'Bunch charge': (1, 5),
-    'cavityVoltage': (12, 25),
+    'lambda': (0.3, 2),
     'SIGXY': (1.5, 12.5)
 }
 
@@ -237,7 +235,7 @@ dvars = [
     'ILS2',
     'ILS3',
     'Bunch charge',
-    'cavityVoltage',
+    'lambda',
     'SIGXY'
 ]
 
@@ -249,7 +247,7 @@ dvar_labels = {
     'ILS2': 'ILS2 [A]',
     'ILS3': 'ILS3 [A]',
     'Bunch charge': 'Bunch charge [nC]',
-    'cavityVoltage': 'Cavity voltage [MV]',
+    'lambda': 'lambda [ps]',
     'SIGXY': 'Laser radius [mm]'
 }
 
@@ -258,7 +256,7 @@ dvar_labels = {
 ###########################
 is_invertible = False
 
-model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_700_awa_range_dense_filtered_8x500_0_to_26m'
+model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_12_awa_range_dense_filtered_8x500_0_to_26m_4peak_distr_12_epochs'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)

@@ -90,7 +90,7 @@ def build_graph_dict(s, qoi, y_label, y_ranges, uncertainty):
                 'y': qoi - uncertainty.values,
                 'line': {
                     'width': 0,
-                    'color': DEFAULT_PLOTLY_COLORS[0],
+                    'color': 'LightGray',
                 },
                 'name': 'Lower bar',
             },
@@ -112,7 +112,7 @@ def build_graph_dict(s, qoi, y_label, y_ranges, uncertainty):
                 'fillcolor': 'LightGray',
                 'line': {
                     'width': 0,
-                    'color': DEFAULT_PLOTLY_COLORS[0],
+                    'color': 'LightGray',
                 },
                 'name': 'Upper bar',
             },

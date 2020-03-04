@@ -88,7 +88,11 @@ def build_graph_dict(s, qoi, y_label, y_ranges, uncertainty):
             {
                 'x': uncertainty.index,
                 'y': qoi - uncertainty.values,
-                'line': {'width': 0},
+                'line': {
+                    'width': 0,
+                    'color': DEFAULT_PLOTLY_COLORS[0],
+                },
+                'name': 'Lower bar',
             },
             # prediction
             {
@@ -106,7 +110,11 @@ def build_graph_dict(s, qoi, y_label, y_ranges, uncertainty):
                 'y': qoi + uncertainty.values,
                 'fill': 'tonexty',
                 'fillcolor': 'LightGray',
-                'line': {'width': 0},
+                'line': {
+                    'width': 0,
+                    'color': DEFAULT_PLOTLY_COLORS[0],
+                },
+                'name': 'Upper bar',
             },
         ],
         'layout': {
@@ -444,11 +452,8 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
 
     # get only rows corresponding to the selected residual quantile
     uncertainties_to_plot = uncertainties.loc[(s_values, uncertainty_lvl), :]
-    print(uncertainties_to_plot.shape)
     # remove the now unnecessary quantile subindex
     uncertainties_to_plot.index = uncertainties_to_plot.index.droplevel(1)
-
-    print(uncertainties_to_plot.shape)
 
     # beam sizes
     to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in x'] * 1000., 'sigma_x [mm]', qoi_ranges['RMS Beamsize in x'], uncertainties_to_plot['RMS Beamsize in x']))

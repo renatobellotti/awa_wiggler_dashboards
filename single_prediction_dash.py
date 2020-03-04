@@ -6,6 +6,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_daq as daq
 import plotly.express as px
+from plotly.colors import DEFAULT_PLOTLY_COLORS
 from dash.dependencies import Input, Output
 tf.keras.backend.set_floatx('float64')
 
@@ -78,17 +79,38 @@ def build_dvar_control(dvar, minimum, maximum, label):
 
     return labelled_textfield
 
-def build_graph_dict(s, qoi, y_label, y_ranges):
+def build_graph_dict(s, qoi, y_label, y_ranges, uncertainty):
+    # for details about the error bars, see:
+    # https://plot.ly/python/v3/continuous-error-bars/
     return {
         'data': [
+            # lower uncertainty "bar"
+            {
+                'x': uncertainty.index,
+                'y': qoi - uncertainty.values,
+                'line': {'width': 0},
+            },
+            # prediction
             {
                 'x': s,
                 'y': qoi,
+                'line': {'color': DEFAULT_PLOTLY_COLORS[0]},
                 'mode': 'lines',
-                'name': 'prediction'
-            }
+                'name': 'prediction',
+                'fill': 'tonexty',
+                'fillcolor': 'LightGray',
+            },
+            # upper uncertainty "bar"
+            {
+                'x': uncertainty.index,
+                'y': qoi + uncertainty.values,
+                'fill': 'tonexty',
+                'fillcolor': 'LightGray',
+                'line': {'width': 0},
+            },
         ],
         'layout': {
+            'showlegend': False,
             'xaxis': {
                 'title': {
                     'text': 's [m]',
@@ -276,6 +298,14 @@ app = dash.Dash(__name__)
 components = []
 
 ##########################
+# load model uncertainty
+##########################
+# "Uncertainty" here means the quantiles of the residuals on the test set
+# at each longitudinal position.
+uncertainties = pd.read_csv('residual_quantiles_by_longitudinal_pos.csv', index_col=(0, 1))
+uncertainty_quantile_levels = uncertainties.index.get_level_values(1).unique()
+
+##########################
 # DVAR sliders
 ##########################
 table_cells = []
@@ -307,7 +337,20 @@ for key, value in machine_element_colors.items():
     }))
 color_labels = html.Div(color_labels)
 
-container = html.Div([table, color_labels], id='right_panel_container')
+# quantiles for the uncertainty
+uncertainty_drowpdown = html.Div([
+    html.P('Quantile of the residuals to use as uncertainty:'),
+    dcc.Dropdown(
+        id='uncertainty_dropdown',
+        options=[{
+            'label': lvl,
+            'value': lvl,
+        } for lvl in uncertainty_quantile_levels],
+        value=0.95
+    ),
+])
+
+container = html.Div([table, uncertainty_drowpdown, color_labels], id='right_panel_container')
 
 components.append(container)
 
@@ -373,9 +416,10 @@ server = app.server
         Output('energy', 'figure'),
         Output('energy_spread', 'figure'),
     ],
-    [Input('{}_numeric_input'.format(dvar), 'value') for dvar in dvars])
-def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage, SIGXY):
-    s_values = np.linspace(0., 26., 1000)
+        [Input(f'{dvar}_numeric_input', 'value') for dvar in dvars] + [Input('uncertainty_dropdown', 'value')]
+    )
+def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage, SIGXY, uncertainty_lvl):
+    s_values = uncertainties.index.get_level_values(0).unique()
 
     X = [np.array([float(IBF),
                     float(IM),
@@ -398,24 +442,32 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
 
     to_return = []
 
+    # get only rows corresponding to the selected residual quantile
+    uncertainties_to_plot = uncertainties.loc[(s_values, uncertainty_lvl), :]
+    print(uncertainties_to_plot.shape)
+    # remove the now unnecessary quantile subindex
+    uncertainties_to_plot.index = uncertainties_to_plot.index.droplevel(1)
+
+    print(uncertainties_to_plot.shape)
+
     # beam sizes
-    to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in x'] * 1000., 'sigma_x [mm]', qoi_ranges['RMS Beamsize in x']))
-    to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in y'] * 1000., 'sigma_y [mm]', qoi_ranges['RMS Beamsize in y']))
+    to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in x'] * 1000., 'sigma_x [mm]', qoi_ranges['RMS Beamsize in x'], uncertainties_to_plot['RMS Beamsize in x']))
+    to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in y'] * 1000., 'sigma_y [mm]', qoi_ranges['RMS Beamsize in y'], uncertainties_to_plot['RMS Beamsize in y']))
     #to_return.append(build_graph_dict(s_values, prediction['RMS Beamsize in s'] * 1000., 'sigma_s [mm]', qoi_ranges['RMS Beamsize in s']))
 
     # emittances
-    to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance x'] * 1000., 'epsilon_x [mm rad]', qoi_ranges['Normalized Emittance x']))
-    to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance y'] * 1000., 'epsilon_y [mm rad]', qoi_ranges['Normalized Emittance y']))
+    to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance x'] * 1000., 'epsilon_x [mm rad]', qoi_ranges['Normalized Emittance x'], uncertainties_to_plot['Normalized Emittance x']))
+    to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance y'] * 1000., 'epsilon_y [mm rad]', qoi_ranges['Normalized Emittance y'], uncertainties_to_plot['Normalized Emittance y']))
     #to_return.append(build_graph_dict(s_values, prediction['Normalized Emittance s'] * 1000., 'epsilon_s [mm rad]', qoi_ranges['Normalized Emittance s']))
 
     # correlations
-    to_return.append(build_graph_dict(s_values, prediction['Correlation xpx'], 'corr(x, px)', qoi_ranges['Correlation xpx']))
-    to_return.append(build_graph_dict(s_values, prediction['Correlation ypy'], 'corr(y, py)', qoi_ranges['Correlation ypy']))
+    to_return.append(build_graph_dict(s_values, prediction['Correlation xpx'], 'corr(x, px)', qoi_ranges['Correlation xpx'], uncertainties_to_plot['Correlation xpx']))
+    to_return.append(build_graph_dict(s_values, prediction['Correlation ypy'], 'corr(y, py)', qoi_ranges['Correlation ypy'], uncertainties_to_plot['Correlation ypy']))
     #to_return.append(build_graph_dict(s_values, prediction['Correlation zpz'], 'corr(s, ps)', qoi_ranges['Correlation zpz']))
 
     # E & dE
-    to_return.append(build_graph_dict(s_values, prediction['Mean Bunch Energy'], 'E [MeV]', qoi_ranges['Mean Bunch Energy']))
-    to_return.append(build_graph_dict(s_values, prediction['energy spread of the beam'] * 1000., 'dE [keV]', qoi_ranges['energy spread of the beam']))
+    to_return.append(build_graph_dict(s_values, prediction['Mean Bunch Energy'], 'E [MeV]', qoi_ranges['Mean Bunch Energy'], uncertainties_to_plot['Mean Bunch Energy']))
+    to_return.append(build_graph_dict(s_values, prediction['energy spread of the beam'] * 1000., 'dE [keV]', qoi_ranges['energy spread of the beam'], uncertainties_to_plot['energy spread of the beam']))
 
     return to_return
 

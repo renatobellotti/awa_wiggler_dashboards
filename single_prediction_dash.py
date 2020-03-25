@@ -239,12 +239,12 @@ columns_to_keep = [
 
 dvar_ranges = {
     'IBF': (450, 550),
-    'IM': (150, 260),
+    'IM': (100, 260),
     'GPHASE': (-50, 10),
     'ILS1': (0, 250),
     'ILS2': (0, 200),
     'ILS3': (0, 200),
-    'Bunch charge': (1, 5),
+    'Bunch charge': (0.3, 5),
     'lambda': (0.3, 2),
     'SIGXY': (1.5, 12.5)
 }
@@ -294,7 +294,7 @@ dvar_labels = {
 ###########################
 is_invertible = False
 
-model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_12_awa_range_dense_filtered_8x500_0_to_26m_4peak_distr_12_epochs'
+model_name = 'hiddenLayers_8_unitsPerLayer_500_activation_relu_batch_size_128_learning_rate_0.0001_optimizer_adam_epochs_12_4peak_distr_lower_charge_and_IM_correct_ranges_8x500_0_to_26m_12_epochs_corr_dvars_8k_training'
 
 if is_invertible:
     model = InvertibleNetworkSurrogate.load('.', model_name)
@@ -310,7 +310,7 @@ components = []
 ##########################
 # "Uncertainty" here means the quantiles of the residuals on the test set
 # at each longitudinal position.
-uncertainties = pd.read_csv('residual_quantiles_by_longitudinal_pos.csv', index_col=(0, 1))
+uncertainties = pd.read_csv('forward_prediction_residual_quantiles_by_longitudinal_pos.csv', index_col=(0, 1))
 uncertainty_quantile_levels = uncertainties.index.get_level_values(1).unique()
 
 ##########################

@@ -426,7 +426,7 @@ server = app.server
     ],
         [Input(f'{dvar}_numeric_input', 'value') for dvar in dvars] + [Input('uncertainty_dropdown', 'value')]
     )
-def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage, SIGXY, uncertainty_lvl):
+def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, lam, SIGXY, uncertainty_lvl):
     s_values = uncertainties.index.get_level_values(0).unique()
 
     X = [np.array([float(IBF),
@@ -436,7 +436,7 @@ def update_graphs(IBF, IM, GPHASE, ILS1, ILS2, ILS3, bunch_charge, cavityVoltage
                     float(ILS2),
                     float(ILS3),
                     float(bunch_charge),
-                    float(cavityVoltage),
+                    float(lam),
                     float(SIGXY),
                     s]).reshape(1, 10) for s in s_values]
 

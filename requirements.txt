@@ -1,4 +1,4 @@
-tensorflow==2.0.0b1
+tensorflow==2.11.1
 plotly
 dash==1.7.0
 dash-daq
